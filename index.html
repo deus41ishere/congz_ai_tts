@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Congz AI Voice Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #020617;
+  color: #e5e7eb;
+  padding: 16px;
+}
+.app {
+  max-width: 520px;
+  margin: auto;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 16px;
+}
+label {
+  display: block;
+  margin-top: 12px;
+  font-size: 13px;
+}
+textarea, input, select, button {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #1e293b;
+  background: #020617;
+  color: #e5e7eb;
+}
+textarea { height: 120px; resize: none; }
+button {
+  background: #2563eb;
+  border: none;
+  font-weight: bold;
+  margin-top: 14px;
+}
+audio { width: 100%; margin-top: 8px; }
+.counter {
+  text-align: right;
+  font-size: 12px;
+  opacity: .6;
+}
+.chunk {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed #1e293b;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <h2 style="text-align:center">AI Voice Generator</h2>
+
+  <label>Text (max 500 chars)</label>
+  <textarea id="text" maxlength="500"></textarea>
+  <div class="counter"><span id="count">0</span>/500</div>
+
+  <label>Voice</label>
+  <input id="voice" placeholder="alloy, narrator, female, male">
+
+  <label>Language</label>
+  <select id="lang">
+    <option value="">Auto</option>
+    <option value="en">English</option>
+    <option value="id">Indonesian</option>
+    <option value="ja">Japanese</option>
+    <option value="ko">Korean</option>
+    <option value="es">Spanish</option>
+  </select>
+
+  <button onclick="generate()">Generate Voice</button>
+
+  <div id="output"></div>
+</div>
+
+<script>
+const textEl = document.getElementById("text");
+const countEl = document.getElementById("count");
+
+textEl.oninput = () => countEl.textContent = textEl.value.length;
+
+function splitText(text, size = 200) {
+  const chunks = [];
+  for (let i = 0; i < text.length; i += size) {
+    chunks.push(text.slice(i, i + size));
+  }
+  return chunks;
+}
+
+function generate() {
+  const text = document.getElementById("text").value.trim();
+  if (!text) return alert("Text required");
+
+  const voice = document.getElementById("voice").value;
+  const lang = document.getElementById("lang").value;
+  const output = document.getElementById("output");
+
+  output.innerHTML = "";
+
+  const url =
+    `/tts-merge?text=${encodeURIComponent(text)}` +
+    (voice ? `&voice=${encodeURIComponent(voice)}` : "") +
+    (lang ? `&lang=${encodeURIComponent(lang)}` : "");
+
+  const audio = document.createElement("audio");
+  audio.controls = true;
+  audio.src = url;
+  audio.autoplay = true;
+
+  const dl = document.createElement("a");
+  dl.href = url;
+  dl.download = "voice.mp3";
+  dl.textContent = "⬇ Download MP3";
+  dl.style.display = "block";
+  dl.style.marginTop = "8px";
+
+  output.append(audio, dl);
+}
+</script>
+</body>
+</html>
